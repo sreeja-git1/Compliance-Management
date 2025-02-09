@@ -9,6 +9,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { Button, Typography } from "@mui/material";
+import {  TextField,MenuItem,Select} from '@mui/material';
 
 // Admin Dashboard Component
 const Docs = () => {
@@ -23,6 +24,10 @@ const Docs = () => {
   });
 
   const [notification, setNotification] = useState({ message: "", type: "" });
+   const [filter, setFilter] = React.useState('');
+    const handleChangeFilter = (event) => {
+      setFilter(event.target.value);
+    };
 
   useEffect(() => {
     fetchTasks();
@@ -75,7 +80,25 @@ const Docs = () => {
     <>
       <div className="min-h-screen" >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Typography variant="h5" className="bold left-align m200" >Upcoming Tasks</Typography>
+        <Typography variant="h5" className="bold left-align m200" >View Documents</Typography>
+        <div style={{ float: "right", margin: "5px 0", display: "flex" }}>
+            <TextField
+              id="outlined-basic"
+              label="search..."
+              variant="outlined"
+            />
+            <Select style={{marginLeft:"20px",width:"100px"}}
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filter}
+              label="filter"
+              onChange={handleChangeFilter}
+            >
+              <MenuItem value={10}>completed</MenuItem>
+              <MenuItem value={20}>Pending</MenuItem>
+              <MenuItem value={30}>In Progress</MenuItem>
+            </Select>
+          </div>
           {notification.message && (
             <div
               className={`mb-4 p-4 rounded-lg ${
@@ -92,18 +115,18 @@ const Docs = () => {
             <Table sx={{ minWidth: 700 }} aria-label="customized table">
               <TableHead>
                 <TableRow>
-                  <StyledTableCell>User </StyledTableCell>
-                  <StyledTableCell>Task</StyledTableCell>
-                  <StyledTableCell>document</StyledTableCell>
-                  {/* <StyledTableCell>Status</StyledTableCell> */}
+                  <StyledTableCell className="bold">User </StyledTableCell>
+                  <StyledTableCell className="bold">Task</StyledTableCell>
+                  <StyledTableCell className="bold">document</StyledTableCell>
+                  <StyledTableCell className="bold">Action</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {tasks.length !== 0 ? tasks.map((row) => (
                   <StyledTableRow key={row.id}>
-                     <StyledTableCell>{row.assignee}</StyledTableCell>
-                    <StyledTableCell>{row.title}</StyledTableCell>
-                    <StyledTableCell>{row.status}</StyledTableCell>
+                     <StyledTableCell className="capitalize">{row.assignee}</StyledTableCell>
+                    <StyledTableCell className="capitalize">{row.title}</StyledTableCell>
+                    <StyledTableCell className="capitalize" style={{color: row.status === "completed" ? "#3dbb74" : "#ED5A6B" }}>{row.status}</StyledTableCell>
                     <StyledTableCell>
                         <Button variant="contained" color="primary" style={{margin:'0px'}}>View</Button>
                     </StyledTableCell>

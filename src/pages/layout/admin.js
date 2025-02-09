@@ -95,13 +95,8 @@ export default function ResponsiveDrawer(props) {
           <Typography variant="h4" noWrap component="div" sx={{ flexGrow: 1 }}>
             Compliance Management
           </Typography>
-          <LogoutIcon onClick={logout}/>
-          {/* <button
-              onClick={logout}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            >
-              Logout
-            </button> */}
+          <LogoutIcon onClick={logout} style={{cursor:'pointer'}}/>
+         
         </Toolbar>
       </AppBar>
       <Box

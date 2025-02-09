@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { styled } from "@mui/material/styles";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Typography } from "@mui/material";
+import {
+  TableContainer,
+  TableBody,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Table,
+} from "@mui/material";
+import {  TextField,MenuItem,Select} from '@mui/material';
 
 // Admin Dashboard Component
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [filter, setFilter] = React.useState('');
 
   const [newTask, setNewTask] = useState({
     title: "",
@@ -69,28 +73,36 @@ const AdminDashboard = () => {
     },
   }));
 
-  // function createData(
-  //   name: string,
-  //   calories: number,
-  //   fat: number,
-  //   carbs: number,
-  //   protein: number,
-  // ) {
-  //   return { name, calories, fat, carbs, protein };
-  // }
-  // const rows = [
-  //   createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  //   createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  //   createData('Eclair', 262, 16.0, 24, 6.0),
-  //   createData('Cupcake', 305, 3.7, 67, 4.3),
-  //   createData('Gingerbread', 356, 16.0, 49, 3.9),
-  // ];
+
+  const handleChangeFilter = (event) => {
+    setFilter(event.target.value);
+  };
 
   return (
     <>
-      <div className="min-h-screen" >
+      <div className="min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Typography variant="h5" className="bold left-align m200" >All Tasks</Typography>
+          <Typography variant="h5" className="bold left-align m200">
+            All Tasks
+          </Typography>
+          <div style={{ float: "right", margin: "5px 0", display: "flex" }}>
+            <TextField
+              id="outlined-basic"
+              label="search..."
+              variant="outlined"
+            />
+            <Select style={{marginLeft:"20px",width:"100px"}}
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filter}
+              label="filter"
+              onChange={handleChangeFilter}
+            >
+              <MenuItem value={10}>completed</MenuItem>
+              <MenuItem value={20}>Pending</MenuItem>
+              <MenuItem value={30}>In Progress</MenuItem>
+            </Select>
+          </div>
           {notification.message && (
             <div
               className={`mb-4 p-4 rounded-lg ${
@@ -106,25 +118,45 @@ const AdminDashboard = () => {
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 700 }} aria-label="customized table">
               <TableHead>
-                <TableRow >
+                <TableRow>
                   <StyledTableCell className="bold">Title </StyledTableCell>
-                  <StyledTableCell className="bold">Assigned To</StyledTableCell>
+                  <StyledTableCell className="bold">
+                    Assigned To
+                  </StyledTableCell>
                   <StyledTableCell className="bold">Due Date</StyledTableCell>
                   <StyledTableCell className="bold">Status</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {tasks.length !== 0 ? tasks.map((row) => (
-                  <StyledTableRow key={row.id}>
-                    <StyledTableCell className="capitalize">{row.title}</StyledTableCell>
-                    <StyledTableCell className="capitalize">{row.assignee}</StyledTableCell>
-                    <StyledTableCell className="capitalize">{new Date(row.due_date).toLocaleDateString()}</StyledTableCell>
-                    {console.log(row.status,"row.status")}
-                    <StyledTableCell className="capitalize"
-                    style={{color: row.status === "completed" ? "#3dbb74" : "#ED5A6B" }}
-                    >{row.status}</StyledTableCell>
-                  </StyledTableRow>
-                )) : <StyledTableCell className="m200 center-align">No tasks found</StyledTableCell>}
+                {tasks.length !== 0 ? (
+                  tasks.map((row) => (
+                    <StyledTableRow key={row.id}>
+                      <StyledTableCell className="capitalize">
+                        {row.title}
+                      </StyledTableCell>
+                      <StyledTableCell className="capitalize">
+                        {row.assignee}
+                      </StyledTableCell>
+                      <StyledTableCell className="capitalize">
+                        {new Date(row.due_date).toLocaleDateString()}
+                      </StyledTableCell>
+                      {console.log(row.status, "row.status")}
+                      <StyledTableCell
+                        className="capitalize"
+                        style={{
+                          color:
+                            row.status === "completed" ? "#3dbb74" : "#ED5A6B",
+                        }}
+                      >
+                        {row.status}
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  ))
+                ) : (
+                  <StyledTableCell className="m200 center-align">
+                    No tasks found
+                  </StyledTableCell>
+                )}
               </TableBody>
             </Table>
           </TableContainer>

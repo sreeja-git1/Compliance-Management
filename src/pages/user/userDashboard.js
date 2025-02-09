@@ -1,12 +1,20 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import useAuth from '../auth/useAuth';
+import { styled } from "@mui/material/styles";
+import TableCell, { tableCellClasses } from "@mui/material/TableCell";
+import {TableContainer, TableBody, TableHead, TableRow, Paper, Typography, Table} from "@mui/material";
+import {  TextField,MenuItem,Select} from '@mui/material';
 
 // User Dashboard Component
 const UserDashboard = () => {
     const [tasks, setTasks] = useState([]);
     const { logout } = useAuth();
     const [notification, setNotification] = useState({ message: '', type: '' });
+     const [filter, setFilter] = React.useState('');
+      const handleChangeFilter = (event) => {
+        setFilter(event.target.value);
+      };
   
     useEffect(() => {
       fetchTasks();
@@ -20,6 +28,30 @@ const UserDashboard = () => {
         showNotification(error.response?.data?.detail || 'Error fetching tasks', 'error');
       }
     };
+
+      const StyledTableCell = styled(TableCell)(({ theme }) => ({
+        [`&.${tableCellClasses.head}`]: {
+          // backgroundColor: theme.palette.common.black,
+          // color: theme.palette.common.white,
+          textAlign: "center",
+          border: "1px solid #ededed",
+        },
+        [`&.${tableCellClasses.body}`]: {
+          fontSize: 14,
+          textAlign: "center",
+          border: "1px solid #ededed !important",
+        },
+      }));
+    
+      const StyledTableRow = styled(TableRow)(({ theme }) => ({
+        "&:nth-of-type(odd)": {
+          backgroundColor: theme.palette.action.hover,
+        },
+        // hide last border
+        "&:last-child td, &:last-child th": {
+          border: 0,
+        },
+      }));
   
     const showNotification = (message, type = 'success') => {
       setNotification({ message, type });
@@ -43,6 +75,25 @@ const UserDashboard = () => {
     return (
       <div className="min-h-screen bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Typography variant="h5" className="bold left-align m200" >My Tasks</Typography>
+        <div style={{ float: "right", margin: "5px 0", display: "flex" }}>
+            <TextField
+              id="outlined-basic"
+              label="search..."
+              variant="outlined"
+            />
+            <Select style={{marginLeft:"20px",width:"100px"}}
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={filter}
+              label="filter"
+              onChange={handleChangeFilter}
+            >
+              <MenuItem value={10}>completed</MenuItem>
+              <MenuItem value={20}>Pending</MenuItem>
+              <MenuItem value={30}>In Progress</MenuItem>
+            </Select>
+          </div>
           {notification.message && (
             <div className={`mb-4 p-4 rounded-lg ${
               notification.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
@@ -51,66 +102,33 @@ const UserDashboard = () => {
             </div>
           )}
   
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">My Tasks</h1>
-            <button
-              onClick={logout}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-            >
-              Logout
-            </button>
-          </div>
   
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {tasks.map(task => (
-                    <tr key={task.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">{task.title}</td>
-                      <td className="px-6 py-4">{task.description}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {new Date(task.due_date).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full
-                          ${task.status === 'completed' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                          }`}
-                        >
-                          {task.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {task.status !== 'completed' && (
-                          <input
-                            type="file"
-                            onChange={(e) => completeTask(task.id, e.target.files[0])}
-                            className="text-sm text-gray-500
-                              file:mr-4 file:py-2 file:px-4
-                              file:rounded-full file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-blue-50 file:text-blue-700
-                              hover:file:bg-blue-100"
-                          />
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+  
+  <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 700 }} aria-label="customized table">
+              <TableHead>
+                <TableRow >
+                  <StyledTableCell className="bold">Title </StyledTableCell>
+                  <StyledTableCell className="bold">Assigned To</StyledTableCell>
+                  <StyledTableCell className="bold">Due Date</StyledTableCell>
+                  <StyledTableCell className="bold">Status</StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {tasks.length !== 0 ? tasks.map((row) => (
+                  <StyledTableRow key={row.id}>
+                    <StyledTableCell className="capitalize">{row.title}</StyledTableCell>
+                    <StyledTableCell className="capitalize">{row.assignee}</StyledTableCell>
+                    <StyledTableCell className="capitalize">{new Date(row.due_date).toLocaleDateString()}</StyledTableCell>
+                    {console.log(row.status,"row.status")}
+                    <StyledTableCell className="capitalize"
+                    style={{color: row.status === "completed" ? "#3dbb74" : "#ED5A6B" }}
+                    >{row.status}</StyledTableCell>
+                  </StyledTableRow>
+                )) : <StyledTableCell className="m200 center-align">No tasks found</StyledTableCell>}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </div>
       </div>
     );

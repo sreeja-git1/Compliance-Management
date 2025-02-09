@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import Login from "../pages/auth/login";
 import UserDashboard from "pages/user/userDashboard";
+import UserSidebar from "pages/layout/user";
 
 import AdminDashboard from "pages/admin/adminDashboard";
 import AdminSidebar from "pages/layout/admin.js";
@@ -40,6 +41,20 @@ const AdminLayout = () => {
   );
 };
 
+
+const UserLayout = () => {
+  return (
+    <div style={{ display: "flex" }}>
+      <UserSidebar />
+      <div style={{ flex: 1, marginTop: "66px" }}>
+        <div  style={{ padding: "50px 0",backgroundColor:'#FFF5E6' }}>
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const WebRoutes = () => {
   return (
     <BrowserRouter>
@@ -66,7 +81,7 @@ const WebRoutes = () => {
           path="/user"
           element={
             <ProtectedRoute>
-              <Outlet />
+              <UserLayout />
             </ProtectedRoute>
           }
         >
