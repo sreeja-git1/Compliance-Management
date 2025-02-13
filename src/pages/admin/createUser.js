@@ -120,6 +120,7 @@ function CreateUser() {
             variant="contained"
             className="w-full"
             type="submit"
+            disabled = { (!newUser.username || !newUser.password || !newUser.email) ? true : false}
           >
             Create User
           </Button>

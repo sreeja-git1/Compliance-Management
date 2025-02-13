@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import useAuth from "../auth/useAuth";
 import logo from "assets/images/logo.jpeg";
-import { Button, Alert } from "@mui/material";
+import { Button} from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import validator from "validator";
-import { SnackbarProvider, useSnackbar } from 'notistack';
+import {useSnackbar } from 'notistack';
 
 // Login Component
 const Login = () => {
@@ -181,7 +181,7 @@ const Login = () => {
             // className="w-full  text-white p-3 rounded-lg font-semibold
             //          hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
             //          disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isLoading}
+            disabled={isLoading || ((!email || !password) ? true : false)}
           >
             {isLoading ? "Logging in..." : "Login"}
           </Button>

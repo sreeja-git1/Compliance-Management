@@ -182,6 +182,7 @@ function CreateTask() {
                 variant="contained"
                 className="w-full"
                 type="submit"
+                disabled = { (!newTask.title || !newTask.assigned_to || !newTask.description || !newTask.due_date) ? true : false }
               >
                 Create Task
               </Button>
@@ -206,6 +207,7 @@ function CreateTask() {
               className="w-full"
               type="submit"
               disabled={!file}
+
             >
               Upload
             </Button>
