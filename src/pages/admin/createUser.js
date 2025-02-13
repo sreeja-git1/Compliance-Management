@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../../styles/pages.css";
-import { Typography , Button} from "@mui/material";
+import { Typography, Button } from "@mui/material";
+import validator from "validator";
+import {useSnackbar } from 'notistack';
 
 function CreateUser() {
-  const [users, setUsers] = useState([]);
+
+  const { enqueueSnackbar } = useSnackbar();
   const [notification, setNotification] = useState({ message: "", type: "" });
   const [newUser, setNewUser] = useState({
     username: "",
@@ -13,16 +16,23 @@ function CreateUser() {
     is_admin: false,
   });
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+ 
 
   const createUser = async (e) => {
     e.preventDefault();
-    try {
+    if (!newUser.username) {
+      enqueueSnackbar("PLease enter username", { variant: "error" });
+    } else if (!newUser.email) {
+      enqueueSnackbar("PLease enter email", { variant: "error" });
+    } else if (!validator.isEmail(newUser.email)) {
+      enqueueSnackbar("Please enter valid email", { variant: "error" });
+    } else if (!newUser.password) {
+      enqueueSnackbar("Please enter password", { variant: "error" });
+    } else {
+        try {
       await axios.post("/admin/users", newUser);
       setNewUser({ username: "", email: "", password: "", is_admin: false });
-      fetchUsers();
+     
       showNotification("User created successfully");
     } catch (error) {
       showNotification(
@@ -30,22 +40,15 @@ function CreateUser() {
         "error"
       );
     }
+    }
+
+  
   };
   const showNotification = (message, type = "success") => {
     setNotification({ message, type });
     setTimeout(() => setNotification({ message: "", type: "" }), 3000);
   };
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get("/admin/users");
-      setUsers(response.data);
-    } catch (error) {
-      showNotification(
-        error.response?.data?.detail || "Error fetching users",
-        "error"
-      );
-    }
-  };
+
 
   return (
     <>
@@ -65,7 +68,7 @@ function CreateUser() {
               onChange={(e) =>
                 setNewUser({ ...newUser, username: e.target.value })
               }
-              required
+              // required
             />
           </div>
           <div>
@@ -73,13 +76,13 @@ function CreateUser() {
               Email
             </label>
             <input
-              type="email"
+              // type="email"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               value={newUser.email}
               onChange={(e) =>
                 setNewUser({ ...newUser, email: e.target.value })
               }
-              required
+              // required
             />
           </div>
           <div>
@@ -93,11 +96,12 @@ function CreateUser() {
               onChange={(e) =>
                 setNewUser({ ...newUser, password: e.target.value })
               }
-              required
+              // required
             />
           </div>
           <div className="flex items-center">
-            <input style={{width:'auto'}}
+            <input
+              style={{ width: "auto" }}
               type="checkbox"
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               checked={newUser.is_admin}

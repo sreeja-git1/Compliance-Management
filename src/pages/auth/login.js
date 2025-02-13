@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import useAuth from "../auth/useAuth";
 import logo from "assets/images/logo.jpeg";
-import { Button } from "@mui/material";
+import { Button, Alert } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import validator from "validator";
+import { SnackbarProvider, useSnackbar } from 'notistack';
 
 // Login Component
 const Login = () => {
+
+  const { enqueueSnackbar } = useSnackbar();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -57,15 +62,25 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError("");
 
-    try {
-      await login(email, password);
-    } catch (err) {
-      setError(err.toString());
-    } finally {
-      setIsLoading(false);
+    console.log()
+    
+    if (!email) {
+      enqueueSnackbar('PLease enter email', { variant:"error" });
+    } else if (! validator.isEmail(email)) {
+      enqueueSnackbar('Please enter valid email', { variant:"error"  });
+    } else if (!password) {
+      enqueueSnackbar('Please enter password', { variant:"error"  });
+    } else {
+      setIsLoading(true);
+      setError("");
+      try {
+        await login(email, password);
+      } catch (err) {
+        setError(err.toString());
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -110,7 +125,7 @@ const Login = () => {
               Email
             </label>
             <input
-              type="email"
+              // type="email"
               className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -129,24 +144,33 @@ const Login = () => {
                 disabled={isLoading}
               />
             </div> */}
-         <div className="relative w-full">
-        <div className="flex items-center bg-white border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500">
-          <input style={{border:'none'}}
-            type={showPassword ? "text" : "password"}
-            className="w-full p-3 focus:outline-none bg-transparent"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-          />
-          <button
-            type="button" style={{border:'none',backgroundColor:"#ffffff"}}
-            className="p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-          </button>
-        </div>
-      </div>
+          <div className="relative w-full">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Password
+            </label>
+            <div className="flex items-center bg-white border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500">
+              <input
+                style={{ border: "none" }}
+                type={showPassword ? "text" : "password"}
+                className="w-full p-3 focus:outline-none bg-transparent"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                style={{ border: "none", backgroundColor: "#ffffff" }}
+                className="p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <VisibilityOff fontSize="small" />
+                ) : (
+                  <Visibility fontSize="small" />
+                )}
+              </button>
+            </div>
+          </div>
           <Button
             color="primary"
             variant="contained"

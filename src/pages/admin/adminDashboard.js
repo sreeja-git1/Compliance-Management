@@ -10,14 +10,16 @@ import {
   Paper,
   Typography,
   Table,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
-import {  TextField,MenuItem,Select} from '@mui/material';
+import { TextField, MenuItem, Select } from "@mui/material";
 
 // Admin Dashboard Component
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = React.useState('');
+  const [filter, setFilter] = React.useState("");
 
   const [newTask, setNewTask] = useState({
     title: "",
@@ -73,7 +75,6 @@ const AdminDashboard = () => {
     },
   }));
 
-
   const handleChangeFilter = (event) => {
     setFilter(event.target.value);
   };
@@ -85,23 +86,37 @@ const AdminDashboard = () => {
           <Typography variant="h5" className="bold left-align m200">
             All Tasks
           </Typography>
-          <div style={{ float: "right", margin: "5px 0", display: "flex" }}>
+          <div style={{ float: "left", margin: "5px 0", display: "flex" }}>
             <TextField
               id="outlined-basic"
               label="search..."
               variant="outlined"
+              sx={{
+                height: "38px", // Increase TextField height
+                "& .MuiInputBase-root": {
+                  height: "100%", // Ensures the input field fills the height
+                },
+              }}
             />
-            <Select style={{marginLeft:"20px",width:"100px"}}
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={filter}
-              label="filter"
-              onChange={handleChangeFilter}
+            <FormControl
+              style={{ marginLeft: "20px", width: "150px" }}
+              size="small"
             >
-              <MenuItem value={10}>completed</MenuItem>
-              <MenuItem value={20}>Pending</MenuItem>
-              <MenuItem value={30}>In Progress</MenuItem>
-            </Select>
+              <InputLabel id="demo-simple-select-label">Filetr by Status</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={filter}
+                onChange={handleChangeFilter}
+                sx={{
+                  width: "100%", // Ensures Select matches the FormControl width
+                }}
+              >
+                <MenuItem value="completed">Completed</MenuItem>
+                <MenuItem value="pending">Pending</MenuItem>
+                <MenuItem value="inProgress">In Progress</MenuItem>
+              </Select>
+            </FormControl>
           </div>
           {notification.message && (
             <div

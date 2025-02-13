@@ -1,26 +1,76 @@
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../../styles/pages.css";
-import { Typography, Button } from "@mui/material";
-import Box from "@mui/material/Box";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
+import { Typography, Button, Box, Tabs, Tab } from "@mui/material";
+import validator from "validator";
+import { useSnackbar } from "notistack";
 
-function CreateUser() {
+function CreateTask() {
+  const { enqueueSnackbar } = useSnackbar();
+
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [notification, setNotification] = useState({ message: "", type: "" });
+   const [notification, setNotification] = useState({ message: '', type: '' });
+  const [file, setFile] = useState(null);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
     due_date: "",
     assigned_to: "",
   });
-  const [value, setValue] = React.useState(0);
 
-  const handleChange = (event, newValue) => {
+  const [value, setValue] = useState(0);
+
+  const handleChangeTab = (event, newValue) => {
     setValue(newValue);
   };
+
+  const handleChangeTask = (e) => {
+    const { name, value } = e.target;
+    setNewTask((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const createTask = async (e) => {
+    e.preventDefault();
+
+    // ✅ Corrected validation check
+    if (!newTask.title) {
+      enqueueSnackbar("Please enter Title", { variant: "error" });
+      return;
+    } else if (!newTask.description) {
+      enqueueSnackbar("Please enter Description", { variant: "error" });
+      return;
+    } else if (!newTask.due_date) { // ✅ Corrected due_date validation
+      enqueueSnackbar("Please enter Due Date", { variant: "error" });
+      return;
+    } else if (!newTask.assigned_to) {
+      enqueueSnackbar("Please enter Assignee", { variant: "error" });
+      return;
+    }
+
+    try {
+      const taskData = {
+        ...newTask,
+        due_date: new Date(newTask.due_date).toISOString(),
+        assigned_to: parseInt(newTask.assigned_to),
+      };
+
+      console.log("Task Data:", taskData);
+
+      await axios.post("/tasks", taskData);
+      setNewTask({ title: "", description: "", due_date: "", assigned_to: "" });
+
+      enqueueSnackbar("Task created successfully", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar(error.response?.data?.detail || "Error creating task", {
+        variant: "error",
+      });
+    }
+  };
+
 
   useEffect(() => {
     fetchTasks();
@@ -29,71 +79,26 @@ function CreateUser() {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get("/tasks");
+      const response = await axios.get('/tasks');
       setTasks(response.data);
     } catch (error) {
-      showNotification(
-        error.response?.data?.detail || "Error fetching tasks",
-        "error"
-      );
+      showNotification(error.response?.data?.detail || 'Error fetching tasks', 'error');
     }
   };
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("/admin/users");
+      const response = await axios.get('/admin/users');
       setUsers(response.data);
     } catch (error) {
-      showNotification(
-        error.response?.data?.detail || "Error fetching users",
-        "error"
-      );
+      showNotification(error.response?.data?.detail || 'Error fetching users', 'error');
     }
   };
 
-  const showNotification = (message, type = "success") => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification({ message: "", type: "" }), 3000);
-  };
-
-  const createTask = async (e) => {
-    e.preventDefault();
-    try {
-      const taskData = {
-        ...newTask,
-        due_date: new Date(newTask.due_date).toISOString(),
-        assigned_to: parseInt(newTask.assigned_to),
+        const showNotification = (message, type = 'success') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification({ message: '', type: '' }), 3000);
       };
-      await axios.post("/tasks", taskData);
-      setNewTask({ title: "", description: "", due_date: "", assigned_to: "" });
-      fetchTasks();
-      showNotification("Task created successfully");
-    } catch (error) {
-      showNotification(
-        error.response?.data?.detail || "Error creating task",
-        "error"
-      );
-    }
-  };
 
-  function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`full-width-tabpanel-${index}`}
-        aria-labelledby={`full-width-tab-${index}`}
-        {...other}
-      >
-        {value === index && (
-          <Box sx={{ p: 3 }}>
-            <Typography>{children}</Typography>
-          </Box>
-        )}
-      </div>
-    );
-  }
 
   return (
     <>
@@ -107,11 +112,12 @@ function CreateUser() {
           padding: "20px 10px",
         }}
       >
-        <Tabs value={value} onChange={handleChange} centered className="bold">
+        <Tabs value={value} onChange={handleChangeTab} centered>
           <Tab value={0} label="Create Single Task" />
           <Tab value={1} label="Create Bulk Tasks" />
         </Tabs>
-        <TabPanel value={value} index={0}>
+
+        {value === 0 && (
           <div className="form">
             <Typography variant="h5" className="bold center-align">
               Create Task
@@ -123,12 +129,10 @@ function CreateUser() {
                 </label>
                 <input
                   type="text"
+                  name="title"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   value={newTask.title}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, title: e.target.value })
-                  }
-                  required
+                  onChange={handleChangeTask}
                 />
               </div>
               <div>
@@ -136,12 +140,10 @@ function CreateUser() {
                   Description
                 </label>
                 <textarea
+                  name="description"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  value={newTask.description}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, description: e.target.value })
-                  }
-                  required
+                  value={newTask.description} // ✅ Added missing value
+                  onChange={handleChangeTask}
                   rows="3"
                 />
               </div>
@@ -150,13 +152,11 @@ function CreateUser() {
                   Due Date
                 </label>
                 <input
-                  type="date"
+                  // type="date"
+                  name="due_date"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   value={newTask.due_date}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, due_date: e.target.value })
-                  }
-                  required
+                  onChange={handleChangeTask}
                 />
               </div>
               <div>
@@ -164,12 +164,10 @@ function CreateUser() {
                   Assign To
                 </label>
                 <select
+                  name="assigned_to"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   value={newTask.assigned_to}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, assigned_to: e.target.value })
-                  }
-                  required
+                  onChange={handleChangeTask}
                 >
                   <option value="">Select User</option>
                   {users.map((user) => (
@@ -185,37 +183,37 @@ function CreateUser() {
                 className="w-full"
                 type="submit"
               >
-                {/* // <button
-                //   type="submit"
-                //   className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                // > */}
                 Create Task
               </Button>
             </form>
           </div>
-        </TabPanel>
-        <TabPanel value={value} index={1}>
+        )}
+
+        {value === 1 && (
           <div className="form">
             <Typography variant="h5" className="bold center-align">
               Create Bulk Tasks
             </Typography>
-            <form onSubmit={createTask} className="space-y-4">
-          
-              <input type="file" id="myFile" name="filename" />
-              <Button
-                color="primary"
-                variant="contained"
-                className="w-full"
-                type="submit"
-              >
-                Upload
-              </Button>
-            </form>
+            <input
+              type="file"
+              id="myFile"
+              name="filename"
+              onChange={(event) => setFile(event.target.files[0])}
+            />
+            <Button
+              color="primary"
+              variant="contained"
+              className="w-full"
+              type="submit"
+              disabled={!file}
+            >
+              Upload
+            </Button>
           </div>
-        </TabPanel>
+        )}
       </Box>
     </>
   );
 }
 
-export default CreateUser;
+export default CreateTask;
